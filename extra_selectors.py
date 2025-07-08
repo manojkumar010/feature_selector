@@ -27,7 +27,9 @@ def calculate_rfe(data: pd.DataFrame):
     # Use a simple, fast model for RFE
     estimator = LogisticRegression(solver='liblinear', random_state=42)
     # The rank is the inverse of the selection order. Rank 1 is the best feature.
-    rfe = RFE(estimator, n_features_to_select=1, step=1)
+    # Limit n_features_to_select for performance on free tiers.
+    n_features_to_select = min(100, X.shape[1])
+    rfe = RFE(estimator, n_features_to_select=n_features_to_select, step=1)
     rfe.fit(X, y)
     
     results = pd.DataFrame({

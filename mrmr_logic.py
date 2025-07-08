@@ -13,7 +13,9 @@ def calculate_mrmr_features(data: pd.DataFrame):
     y = data.iloc[:, 0]
     
     # 1. Get the feature ranking from mrmr_classif
-    ranked_features = mrmr_classif(X=X, y=y, K=len(X.columns))
+    # We limit K to a maximum of 100 for performance on free tiers.
+    K_limit = min(100, len(X.columns))
+    ranked_features = mrmr_classif(X=X, y=y, K=K_limit)
     mrmr_ranks = pd.DataFrame({
         'MRMR_Ranked_Feature': ranked_features,
         'MRMR_Rank': range(1, len(ranked_features) + 1)
