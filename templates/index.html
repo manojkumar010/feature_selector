@@ -1,0 +1,114 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Feature Selection Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body { font-family: 'Roboto', sans-serif; background-color: #e9ecef; }
+        .card { border: none; box-shadow: 0 8px 16px rgba(0,0,0,0.15); border-radius: 12px; margin-top: 50px; }
+        .card-header { background: linear-gradient(45deg, #007bff, #0056b3); color: white; border-top-left-radius: 12px; border-top-right-radius: 12px; padding: 20px; }
+        .card-title { font-weight: 700; font-size: 1.5rem; }
+        .btn-primary { background: #007bff; border: none; transition: background-color 0.3s ease; }
+        .btn-primary:hover { background-color: #0056b3; }
+        .loader-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.85); z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column; }
+        .spinner-border { width: 3rem; height: 3rem; }
+        .loader-text { margin-top: 15px; font-size: 1.1rem; font-weight: 500; color: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h3 class="card-title">Feature Selection Dashboard</h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="text-muted text-center">Upload your dataset to calculate feature weights using ERFS and MRMR algorithms.</p>
+                        <div id="alert-container"></div>
+                        <form id="analysis-form">
+                            <div class="form-group">
+                                <label for="file"><b>Select Excel File (.xlsx):</b></label>
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" name="file" id="file" required>
+                                    <label class="custom-file-label" for="file">Choose file...</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="sheet_name"><b>Sheet Name:</b></label>
+                                <input type="text" class="form-control" name="sheet_name" id="sheet_name" placeholder="e.g., Sheet3" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg btn-block mt-4">Run Analysis</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="loader-overlay" id="loader">
+        <div class="spinner-border text-primary" role="status"></div>
+        <div class="loader-text">Running analysis... This may take a moment.</div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showAlert(message, category = 'danger') {
+            const alertContainer = document.getElementById('alert-container');
+            const alert = `<div class="alert alert-${category} alert-dismissible fade show" role="alert">
+                                ${message}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                           </div>`;
+            alertContainer.innerHTML = alert;
+        }
+
+        document.getElementById('analysis-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            document.getElementById('loader').style.display = 'flex';
+            document.getElementById('alert-container').innerHTML = '';
+
+            const formData = new FormData(this);
+
+            fetch('/run_analysis', { 
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.blob();
+                } else {
+                    return response.json().then(err => { throw new Error(err.error) });
+                }
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'feature_analysis_results.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.getElementById('loader').style.display = 'none';
+                showAlert('Analysis complete! Download has started.', 'success');
+            })
+            .catch(error => {
+                document.getElementById('loader').style.display = 'none';
+                showAlert('An error occurred: ' + error.message);
+            });
+        });
+
+        document.querySelector('.custom-file-input').addEventListener('change', function(e) {
+            var fileName = e.target.files[0] ? e.target.files[0].name : "Choose file...";
+            e.target.nextElementSibling.innerText = fileName;
+        });
+    </script>
+</body>
+</html>
