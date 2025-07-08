@@ -4,8 +4,7 @@ import pandas as pd
 
 def proposed_approach_python(data: np.ndarray):
     """
-    Python translation of the `proposed_approach.m` script.
-    Calculates feature weights based on the overlap of class distributions.
+    This function calculates feature weights based on the overlap of class distributions.
     """
     n_samples, n_features_total = data.shape
     dim = n_features_total - 1
@@ -62,7 +61,7 @@ def proposed_approach_python(data: np.ndarray):
     final_weight = wt / np.max(wt) if np.max(wt) > 0 else wt
     return final_weight
 
-def run_erfs_ensemble(data: np.ndarray, n_iterations=20, subset_fraction=0.8):
+def run_erfs_ensemble(data: np.ndarray, n_iterations=10, subset_fraction=0.8):
     """
     Implements the full "Ensemble of Random Feature Subsets" (ERFS) approach.
     """

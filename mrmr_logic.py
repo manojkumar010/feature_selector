@@ -14,7 +14,7 @@ def calculate_mrmr_features(data: pd.DataFrame):
     
     # 1. Get the feature ranking from mrmr_classif
     # We limit K to a maximum of 100 for performance on free tiers.
-    K_limit = min(100, len(X.columns))
+    K_limit = min(50, len(X.columns))
     ranked_features = mrmr_classif(X=X, y=y, K=K_limit)
     mrmr_ranks = pd.DataFrame({
         'MRMR_Ranked_Feature': ranked_features,
