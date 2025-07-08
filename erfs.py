@@ -62,7 +62,7 @@ def proposed_approach_python(data: np.ndarray):
     final_weight = wt / np.max(wt) if np.max(wt) > 0 else wt
     return final_weight
 
-def run_erfs_ensemble(data: np.ndarray, n_iterations=100, subset_fraction=0.8):
+def run_erfs_ensemble(data: np.ndarray, n_iterations=50, subset_fraction=0.8):
     """
     Implements the full "Ensemble of Random Feature Subsets" (ERFS) approach.
     """
